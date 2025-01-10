@@ -479,3 +479,83 @@ const EmployeeForm = () => {
 };
 
 export default EmployeeForm;
+
+
+
+
+
+
+//new css
+
+/* Form Container */
+.form-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #d8eefe, #85c1f1);
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+/* Form Card */
+.form-card {
+  background: #ffffff;
+  padding: 30px;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Title */
+.form-title {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  color: #333333;
+  margin-bottom: 20px;
+}
+
+/* Form Group */
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  color: #555555;
+  margin-bottom: 5px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px 15px;
+  font-size: 14px;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+  border-color: #007bff;
+}
+
+/* Submit Button */
+.submit-btn {
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 16px;
+  color: #ffffff;
+  background: #007bff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.submit-btn:hover {
+  background: #0056b3;
+}
