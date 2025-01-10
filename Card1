@@ -559,3 +559,99 @@ export default EmployeeForm;
 .submit-btn:hover {
   background: #0056b3;
 }
+
+
+
+another css
+
+/* Center the form in the browser */
+.new-form-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+  font-family: 'Roboto', sans-serif;
+  padding: 20px;
+}
+
+/* Form Card */
+.new-form-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 500px;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Title */
+.new-form-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333333;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Form Group */
+.new-form-group {
+  margin-bottom: 15px;
+}
+
+.new-form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  color: #555555;
+  margin-bottom: 5px;
+}
+
+.new-form-group input {
+  width: 100%;
+  padding: 10px 15px;
+  font-size: 14px;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.new-form-group input:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+}
+
+/* Submit Button */
+.new-submit-btn {
+  display: block;
+  width: 100%;
+  padding: 12px 15px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffffff;
+  background: #4a90e2;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.new-submit-btn:hover {
+  background: #357ab7;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .new-form-card {
+    padding: 20px;
+  }
+
+  .new-form-title {
+    font-size: 20px;
+  }
+
+  .new-submit-btn {
+    font-size: 14px;
+  }
+}
