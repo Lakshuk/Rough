@@ -1,0 +1,108 @@
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+const EmployeeList = () => {
+  const [employees, setEmployees] = useState([]);
+  const navigate = useNavigate();
+
+  // Fetch employee list from the backend
+  useEffect(() => {
+    fetch("http://localhost:8080/getAll")
+      .then((response) => response.json())
+      .then((data) => setEmployees(data))
+      .catch((error) => console.error("Error fetching employees:", error));
+  }, []);
+
+  const handleCardClick = (id) => {
+    navigate(`/employee/${id}`);
+  };
+
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", padding: "20px" }}>
+      {employees.map((employee) => (
+        <div
+          key={employee.id}
+          style={{
+            border: "1px solid #ccc",
+            borderRadius: "8px",
+            padding: "16px",
+            width: "200px",
+            textAlign: "center",
+            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+            cursor: "pointer",
+          }}
+          onClick={() => handleCardClick(employee.id)}
+        >
+          <h3>{employee.name}</h3>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default EmployeeList;
+
+
+
+//employee detail file
+
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+
+const EmployeeDetails = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [employee, setEmployee] = useState(null);
+
+  // Fetch employee details by ID from the backend
+  useEffect(() => {
+    fetch(`http://localhost:8080/getById/${id}`)
+      .then((response) => response.json())
+      .then((data) => setEmployee(data))
+      .catch((error) => console.error("Error fetching employee details:", error));
+  }, [id]);
+
+  const handleDelete = () => {
+    fetch(`http://localhost:8080/delete/${id}`, {
+      method: "DELETE",
+    })
+      .then((response) => {
+        if (response.ok) {
+          alert("Employee deleted successfully");
+          navigate("/");
+        } else {
+          alert("Failed to delete employee");
+        }
+      })
+      .catch((error) => console.error("Error deleting employee:", error));
+  };
+
+  const handleEdit = () => {
+    alert("Edit functionality not implemented yet");
+    // Add your edit functionality here
+  };
+
+  if (!employee) {
+    return <p>Loading...</p>;
+  }
+
+  return (
+    <div style={{ textAlign: "center", padding: "20px" }}>
+      <h1>{employee.name}</h1>
+      <p><strong>Email:</strong> {employee.email}</p>
+      <p><strong>Number:</strong> {employee.number}</p>
+      <p><strong>Country:</strong> {employee.country}</p>
+      <div style={{ marginTop: "20px" }}>
+        <button style={{ marginRight: "10px" }} onClick={handleEdit}>
+          Edit
+        </button>
+        <button style={{ marginRight: "10px" }} onClick={handleDelete}>
+          Delete
+        </button>
+        <button onClick={() => navigate("/")}>Home</button>
+      </div>
+    </div>
+  );
+};
+
+export default EmployeeDetails;
