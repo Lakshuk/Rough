@@ -1,1 +1,47 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
+const EmployeeList = () => {
+  const [employees, setEmployees] = useState([]); // State to store the employee list
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Fetching the data
+    axios
+      .get('http://localhost:8080/student/getAll') // Replace URL with your API endpoint
+      .then((response) => setEmployees(response.data))
+      .catch((error) => console.error('Error fetching employees:', error));
+  }, []);
+
+  // Handle card click (view employee details)
+  const handleCardClick = (id) => {
+    navigate(`/employee/${id}`);
+  };
+
+  // Handle add button click
+  const handleAddEmployee = () => {
+    navigate('/employees/add');
+  };
+
+  return (
+    <div className="employee-list-container">
+      <button className="add-employee-btn" onClick={handleAddEmployee}>
+        Add Employee
+      </button>
+      <div className="employee-card-container">
+        {employees.map((employee) => (
+          <div
+            key={employee.id}
+            className="employee-card"
+            onClick={() => handleCardClick(employee.id)}
+          >
+            <h3>{employee.name}</h3>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default EmployeeList;
