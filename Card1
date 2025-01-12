@@ -1,121 +1,161 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-
-const EmployeeList = () => {
-  const [employees, setEmployees] = useState([]); // State to store the employee list
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Fetching the data
-    axios
-      .get('http://localhost:8080/student/getAll') // Replace URL with your API endpoint
-      .then((response) => setEmployees(response.data))
-      .catch((error) => console.error('Error fetching employees:', error));
-  }, []);
-
-  // Handle card click (view employee details)
-  const handleCardClick = (id) => {
-    navigate(`/employee/${id}`);
-  };
-
-  // Handle add button click
-  const handleAddEmployee = () => {
-    navigate('/employees/add');
-  };
-
-  return (
-    <div className="employee-list-container">
-      <button className="add-employee-btn" onClick={handleAddEmployee}>
-        Add Employee
-      </button>
-      <div className="employee-card-container">
-        {employees.map((employee) => (
-          <div
-            key={employee.id}
-            className="employee-card"
-            onClick={() => handleCardClick(employee.id)}
-          >
-            <h3>{employee.name}</h3>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-export default EmployeeList;
-
-
-
-
-//
-/* Employee List Page Styles */
-.employee-list-container {
-  padding: 20px;
-  background: linear-gradient(135deg, #f5f7fa, #e2e8f0);
-  min-height: 100vh;
-  font-family: 'Roboto', sans-serif;
-}
-
-/* Add Button */
-.add-employee-btn {
-  display: inline-block;
-  margin-bottom: 20px;
-  padding: 12px 20px;
-  font-size: 16px;
-  font-weight: bold;
-  color: #ffffff;
-  background-color: #4caf50;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.add-employee-btn:hover {
-  background-color: #45a049;
-}
-
-/* Employee Card Container */
-.employee-card-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-}
-
-/* Individual Employee Card */
-.employee-card {
-  border: 1px solid #ccc;
-  border-radius: 12px;
-  padding: 16px;
-  width: 200px;
-  text-align: center;
-  background-color: #ffffff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.employee-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-}
-
-.employee-card h3 {
+/* General Styles */
+body {
+  font-family: 'Arial', sans-serif;
   margin: 0;
+  background-color: #f4f4f9;
+}
+
+/* Loading State */
+.loading {
   font-size: 18px;
+  text-align: center;
+  color: #555;
+}
+
+/* Employee Details Container */
+.employee-details-container {
+  width: 90%;
+  max-width: 600px;
+  margin: 40px auto;
+  background: #ffffff;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+}
+
+/* Employee Card */
+.employee-card {
+  background: #fafafa;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.employee-name {
+  font-size: 22px;
   color: #333;
+  margin-bottom: 10px;
+}
+
+.employee-info {
+  font-size: 16px;
+  color: #555;
+  margin: 5px 0;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+button {
+  font-size: 14px;
+  padding: 10px 15px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.delete-btn {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+.delete-btn:hover {
+  background-color: #e63939;
+}
+
+.edit-btn {
+  background-color: #4caf50;
+  color: white;
+}
+
+.edit-btn:hover {
+  background-color: #399739;
+}
+
+.home-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.home-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Edit Form */
+.employee-edit-form {
+  text-align: left;
+  margin-top: 20px;
+}
+
+.form-title {
+  font-size: 20px;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.form-label {
+  font-size: 14px;
+  color: #555;
+  margin-top: 10px;
+  display: block;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.form-input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5);
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.save-btn {
+  background-color: #4caf50;
+  color: white;
+}
+
+.save-btn:hover {
+  background-color: #399739;
+}
+
+.cancel-btn {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background-color: #e63939;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .employee-card {
-    width: 100%;
+  .employee-details-container {
+    padding: 15px;
   }
 
-  .add-employee-btn {
+  .action-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  button {
     width: 100%;
-    text-align: center;
   }
 }
