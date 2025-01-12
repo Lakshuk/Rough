@@ -1,375 +1,42 @@
-/* General Styles */
-body {
-  font-family: 'Arial', sans-serif;
-  margin: 0;
-  background-color: #f4f4f9;
-}
-
-/* Loading State */
-.loading {
-  font-size: 18px;
-  text-align: center;
-  color: #555;
-}
-
-/* Employee Details Container */
-.employee-details-container {
-  width: 90%;
-  max-width: 600px;
-  margin: 40px auto;
-  background: #ffffff;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  padding: 20px;
-  text-align: center;
-}
-
-/* Employee Card */
-.employee-card {
-  background: #fafafa;
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-}
-
-.employee-name {
-  font-size: 22px;
-  color: #333;
-  margin-bottom: 10px;
-}
-
-.employee-info {
-  font-size: 16px;
-  color: #555;
-  margin: 5px 0;
-}
-
-/* Action Buttons */
-.action-buttons {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 20px;
-}
-
-button {
-  font-size: 14px;
-  padding: 10px 15px;
-  border-radius: 5px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.delete-btn {
-  background-color: #ff4d4d;
-  color: white;
-}
-
-.delete-btn:hover {
-  background-color: #e63939;
-}
-
-.edit-btn {
-  background-color: #4caf50;
-  color: white;
-}
-
-.edit-btn:hover {
-  background-color: #399739;
-}
-
-.home-btn {
-  background-color: #007bff;
-  color: white;
-}
-
-.home-btn:hover {
-  background-color: #0056b3;
-}
-
-/* Edit Form */
-.employee-edit-form {
-  text-align: left;
-  margin-top: 20px;
-}
-
-.form-title {
-  font-size: 20px;
-  color: #333;
-  margin-bottom: 15px;
-}
-
-
-
-//new 
-
-/* General Styles */
-body {
-  font-family: 'Arial', sans-serif;
-  margin: 0;
-  background: linear-gradient(to bottom, #e3f2fd, #bbdefb);
+.split-form-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  background-color: #f2f2f2;
 }
 
-/* Employee Details Container */
-.employee-details-container {
-  width: 90%;
-  max-width: 400px;
-  background: #ffffff;
-  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
-  padding: 25px 20px;
-  text-align: center;
-  position: relative;
-  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+.form-card {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.employee-details-container:hover {
-  transform: translateY(-5px);
-  box-shadow: 0px 12px 25px rgba(0, 0, 0, 0.2);
-}
-
-/* Employee Card */
-.employee-card {
+.form-group {
   margin-bottom: 20px;
 }
 
-.employee-name {
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 10px;
-}
-
-.employee-info {
-  font-size: 16px;
-  color: #666;
-  margin: 5px 0;
-}
-
-/* Action Buttons */
-.action-buttons {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 20px;
-}
-
-button {
-  font-size: 14px;
-  padding: 10px 20px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-}
-
-.delete-btn {
-  background: linear-gradient(to right, #ff6f61, #d32f2f);
-  color: white;
-  box-shadow: 0 4px 6px rgba(255, 0, 0, 0.2);
-}
-
-.delete-btn:hover {
-  background: linear-gradient(to right, #e53935, #c62828);
-  box-shadow: 0 6px 8px rgba(255, 0, 0, 0.3);
-}
-
-.edit-btn {
-  background: linear-gradient(to right, #66bb6a, #388e3c);
-  color: white;
-  box-shadow: 0 4px 6px rgba(0, 255, 0, 0.2);
-}
-
-.edit-btn:hover {
-  background: linear-gradient(to right, #43a047, #2e7d32);
-  box-shadow: 0 6px 8px rgba(0, 255, 0, 0.3);
-}
-
-.home-btn {
-  background: linear-gradient(to right, #42a5f5, #1e88e5);
-  color: white;
-  box-shadow: 0 4px 6px rgba(0, 0, 255, 0.2);
-}
-
-.home-btn:hover {
-  background: linear-gradient(to right, #2196f3, #1565c0);
-  box-shadow: 0 6px 8px rgba(0, 0, 255, 0.3);
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .action-buttons {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  button {
-    width: 100%;
-  }
-
-
-.form-label {
-  font-size: 14px;
-  color: #555;
-  margin-top: 10px;
+label {
   display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
 }
 
-.form-input {
+input[type="text"],
+input[type="password"] {
   width: 100%;
   padding: 10px;
-  margin-top: 5px;
-  margin-bottom: 15px;
   border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.form-input:focus {
-  border-color: #007bff;
-  outline: none;
-  box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5);
-}
-
-.form-buttons {
-  display: flex;
-  justify-content: space-between;
-}
-
-.save-btn {
-  background-color: #4caf50;
-  color: white;
-}
-
-.save-btn:hover {
-  background-color: #399739;
-}
-
-.cancel-btn {
-  background-color: #ff4d4d;
-  color: white;
-}
-
-.cancel-btn:hover {
-  background-color: #e63939;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .employee-details-container {
-    padding: 15px;
-  }
-
-  .action-buttons {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  button {
-    width: 100%;
-  }
-}
-
-
-//another 
-
-/* General Styles */
-body {
-  font-family: 'Arial', sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f0f2f5;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
-/* Employee Details Container */
-.employee-details-container {
-  width: 400px;
-  background: #ffffff;
-  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-  padding: 20px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-/* Employee Card */
-.employee-card {
-  padding: 15px;
-  border-radius: 10px;
-  background: #f9f9f9;
-  text-align: left;
-}
-
-.employee-card h1 {
-  font-size: 24px;
-  color: #333;
-  margin-bottom: 10px;
-  text-transform: capitalize;
-  text-align: center;
-}
-
-.employee-card p {
-  font-size: 16px;
-  color: #555;
-  margin: 8px 0;
-  line-height: 1.6;
-}
-
-/* Action Buttons */
-.action-buttons {
-  display: flex;
-  justify-content: space-around;
-  gap: 10px;
+  border-radius: 4px;
+  box-sizing: border-box;
 }
 
 button {
-  font-size: 14px;
-  padding: 10px 15px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  flex-grow: 1;
-}
-
-.delete-btn {
-  background-color: #ff4d4d;
-  color: white;
-}
-
-.delete-btn:hover {
-  background-color: #e63939;
-}
-
-.edit-btn {
-  background-color: #4caf50;
-  color: white;
-}
-
-.edit-btn:hover {
-  background-color: #399739;
-}
-
-.home-btn {
   background-color: #007bff;
-  color: white;
-}
-
-.home-btn:hover {
-  background-color: #0056b3;
-}
-
-/* Responsive Design */
-@media (max-width: 480px) {
-  .employee-details-container {
-    width: 90%;
-  }
+  color: #fff;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
