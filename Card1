@@ -99,6 +99,118 @@ button {
   margin-bottom: 15px;
 }
 
+
+
+//new 
+
+/* General Styles */
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  background: linear-gradient(to bottom, #e3f2fd, #bbdefb);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* Employee Details Container */
+.employee-details-container {
+  width: 90%;
+  max-width: 400px;
+  background: #ffffff;
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  padding: 25px 20px;
+  text-align: center;
+  position: relative;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.employee-details-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 12px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Employee Card */
+.employee-card {
+  margin-bottom: 20px;
+}
+
+.employee-name {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.employee-info {
+  font-size: 16px;
+  color: #666;
+  margin: 5px 0;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+button {
+  font-size: 14px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.delete-btn {
+  background: linear-gradient(to right, #ff6f61, #d32f2f);
+  color: white;
+  box-shadow: 0 4px 6px rgba(255, 0, 0, 0.2);
+}
+
+.delete-btn:hover {
+  background: linear-gradient(to right, #e53935, #c62828);
+  box-shadow: 0 6px 8px rgba(255, 0, 0, 0.3);
+}
+
+.edit-btn {
+  background: linear-gradient(to right, #66bb6a, #388e3c);
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 255, 0, 0.2);
+}
+
+.edit-btn:hover {
+  background: linear-gradient(to right, #43a047, #2e7d32);
+  box-shadow: 0 6px 8px rgba(0, 255, 0, 0.3);
+}
+
+.home-btn {
+  background: linear-gradient(to right, #42a5f5, #1e88e5);
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 255, 0.2);
+}
+
+.home-btn:hover {
+  background: linear-gradient(to right, #2196f3, #1565c0);
+  box-shadow: 0 6px 8px rgba(0, 0, 255, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .action-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  button {
+    width: 100%;
+  }
+}
+
 .form-label {
   font-size: 14px;
   color: #555;
