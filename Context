@@ -1,0 +1,219 @@
+//app.jxs
+
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./AuthContext";
+import Login from "./components/Login";
+import Signup from "./components/Signup";
+import Employee from "./components/Employee";
+import Update from "./components/Update";
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          {/* Protected Routes */}
+          <Route path="/employees" element={<ProtectedRoute Component={Employee} />} />
+          <Route path="/employees/update/:id" element={<ProtectedRoute Component={Update} />} />
+          {/* Default Route */}
+          <Route path="*" element={<Navigate to="/login" />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
+  );
+}
+
+// ProtectedRoute Component
+const ProtectedRoute = ({ Component }) => {
+  const { isAuthenticated } = React.useContext(AuthContext);
+  return isAuthenticated ? <Component /> : <Navigate to="/login" />;
+};
+
+export default App;
+
+
+
+
+//authContext.js
+
+import React, { createContext, useState } from "react";
+
+// Create context
+export const AuthContext = createContext();
+
+// AuthProvider Component
+export const AuthProvider = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null); // Store logged-in user info
+
+  // Login Function
+  const login = (email, password) => {
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+    const validUser = users.find(
+      (user) => user.email === email && user.password === password
+    );
+    if (validUser) {
+      setIsAuthenticated(true);
+      setUser(validUser);
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  // Signup Function
+  const signup = (email, password) => {
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+    const existingUser = users.find((user) => user.email === email);
+    if (existingUser) {
+      return false; // User already exists
+    }
+    const newUser = { email, password };
+    users.push(newUser);
+    localStorage.setItem("users", JSON.stringify(users));
+    return true;
+  };
+
+  // Logout Function
+  const logout = () => {
+    setIsAuthenticated(false);
+    setUser(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ isAuthenticated, user, login, signup, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+
+
+//login.jsx
+
+import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../AuthContext";
+
+const Login = () => {
+  const [loginDetails, setLoginDetails] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setLoginDetails({ ...loginDetails, [name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const isLoggedIn = login(loginDetails.email, loginDetails.password);
+    if (isLoggedIn) {
+      navigate("/employees"); // Redirect to Employee List
+    } else {
+      setError("Invalid email or password");
+    }
+  };
+
+  return (
+    <div className="form-container">
+      <form className="form-card" onSubmit={handleSubmit}>
+        <h2>Login</h2>
+        {error && <p className="error-text">{error}</p>}
+        <div className="form-group">
+          <label>Email:</label>
+          <input type="email" name="email" onChange={handleChange} required />
+        </div>
+        <div className="form-group">
+          <label>Password:</label>
+          <input type="password" name="password" onChange={handleChange} required />
+        </div>
+        <button type="submit" className="btn-save">Login</button>
+      </form>
+    </div>
+  );
+};
+
+export default Login;
+
+
+//signup.jsx
+
+import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../AuthContext";
+
+const Signup = () => {
+  const [signupDetails, setSignupDetails] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const { signup } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setSignupDetails({ ...signupDetails, [name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const isSignedUp = signup(signupDetails.email, signupDetails.password);
+    if (isSignedUp) {
+      alert("Signup successful! Please log in.");
+      navigate("/login");
+    } else {
+      setError("User already exists");
+    }
+  };
+
+  return (
+    <div className="form-container">
+      <form className="form-card" onSubmit={handleSubmit}>
+        <h2>Signup</h2>
+        {error && <p className="error-text">{error}</p>}
+        <div className="form-group">
+          <label>Email:</label>
+          <input type="email" name="email" onChange={handleChange} required />
+        </div>
+        <div className="form-group">
+          <label>Password:</label>
+          <input type="password" name="password" onChange={handleChange} required />
+        </div>
+        <button type="submit" className="btn-save">Signup</button>
+      </form>
+    </div>
+  );
+};
+
+export default Signup;
+
+
+//employee.jsx
+add logout here
+
+import React, { useContext } from "react";
+import { AuthContext } from "../AuthContext";
+
+const Employee = () => {
+  const { logout } = useContext(AuthContext);
+
+  const handleLogout = () => {
+    logout();
+  };
+
+  return (
+    <div>
+      <button onClick={handleLogout} className="btn-save">Logout</button>
+      {/* Your existing Employee list UI */}
+    </div>
+  );
+};
+
+export default Employee;
+
+
+
