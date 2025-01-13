@@ -351,3 +351,51 @@ const EmployeeList = () => {
 };
 
 export default EmployeeList;
+
+
+
+//employee update 
+
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import "./EmployeeList.css"; // Add your CSS file if needed
+
+const EmployeeList = ({ employees, onView }) => {
+  const navigate = useNavigate();
+
+  // Handle Add Button Click
+  const handleAddEmployee = () => {
+    navigate("/employees/add"); // Navigate to the Add Employee page
+  };
+
+  return (
+    <div className="employee-list-container">
+      {/* Title */}
+      <h1 className="employee-list-title">Employee List</h1>
+
+      {/* Add Button */}
+      <div className="add-button-container">
+        <button className="add-employee-btn" onClick={handleAddEmployee}>
+          Add Employee
+        </button>
+      </div>
+
+      {/* Employee Cards */}
+      <div className="employee-cards">
+        {employees.map((employee) => (
+          <div
+            key={employee.id}
+            className="employee-card"
+            onClick={() => onView(employee)}
+          >
+            <h2>{employee.name}</h2>
+            <p>{employee.email}</p>
+            <p>{employee.phone}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default EmployeeList;
