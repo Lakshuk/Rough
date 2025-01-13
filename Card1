@@ -502,3 +502,173 @@ const EmployeeForm = () => {
 };
 
 export default EmployeeForm;
+
+
+
+
+//login
+
+import React, { useState } from "react";
+import axios from "axios";
+
+const Login = ({ onLoginSuccess }) => {
+  const [loginDetails, setLoginDetails] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [error, setError] = useState("");
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setLoginDetails({ ...loginDetails, [name]: value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post("http://example.com/api/login", loginDetails);
+      alert("Login successful!");
+      onLoginSuccess(response.data.token); // Call callback with token or user data
+    } catch (err) {
+      setError("Invalid email or password");
+    }
+  };
+
+  return (
+    <div className="form-container">
+      <form className="form-card" onSubmit={handleSubmit}>
+        <h2>Login</h2>
+        {error && <p className="error-text">{error}</p>}
+        <div className="form-group">
+          <label htmlFor="email">Email:</label>
+          <input
+            type="email"
+            name="email"
+            value={loginDetails.email}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="password">Password:</label>
+          <input
+            type="password"
+            name="password"
+            value={loginDetails.password}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <button type="submit" className="btn-save">
+          Login
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default Login;
+
+
+
+//signup 
+
+import React, { useState } from "react";
+import axios from "axios";
+
+const Signup = () => {
+  const [signupDetails, setSignupDetails] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const [error, setError] = useState("");
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setSignupDetails({ ...signupDetails, [name]: value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (signupDetails.password !== signupDetails.confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    try {
+      await axios.post("http://example.com/api/signup", {
+        name: signupDetails.name,
+        email: signupDetails.email,
+        password: signupDetails.password,
+      });
+      alert("Signup successful! Please log in.");
+      setSignupDetails({
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+      });
+      setError("");
+    } catch (err) {
+      setError("Failed to create account. Try again later.");
+    }
+  };
+
+  return (
+    <div className="form-container">
+      <form className="form-card" onSubmit={handleSubmit}>
+        <h2>Signup</h2>
+        {error && <p className="error-text">{error}</p>}
+        <div className="form-group">
+          <label htmlFor="name">Name:</label>
+          <input
+            type="text"
+            name="name"
+            value={signupDetails.name}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="email">Email:</label>
+          <input
+            type="email"
+            name="email"
+            value={signupDetails.email}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="password">Password:</label>
+          <input
+            type="password"
+            name="password"
+            value={signupDetails.password}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="confirmPassword">Confirm Password:</label>
+          <input
+            type="password"
+            name="confirmPassword"
+            value={signupDetails.confirmPassword}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <button type="submit" className="btn-save">
+          Signup
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default Signup;
