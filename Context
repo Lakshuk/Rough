@@ -376,4 +376,69 @@ const App = () => {
 
 export default App;
 
+
+
+//new loginsignup
+
+import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from './AuthContext';
+
+const LoginSignup = () => {
+  const { currentUser, register, login } = useContext(AuthContext);
+  const [isLogin, setIsLogin] = useState(true); // Toggle between login and sign-up
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (isLogin) {
+      // Login process
+      const result = login(email, password);
+      setMessage(result.message);
+      if (result.success) {
+        navigate('/add-employee'); // Redirect to Add Employee page
+      }
+    } else {
+      // Registration process
+      const result = register(email, password);
+      setMessage(result.message);
+      if (result.success) {
+        setIsLogin(true); // Switch to login form after registration
+      }
+    }
+  };
+
+  return (
+    <div>
+      <h2>{isLogin ? 'Login' : 'Sign Up'}</h2>
+      <form onSubmit={handleSubmit}>
+        <label>Email:</label>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <label>Password:</label>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit">{isLogin ? 'Login' : 'Sign Up'}</button>
+      </form>
+      {message && <p>{message}</p>}
+      <button onClick={() => setIsLogin(!isLogin)}>
+        {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login'}
+      </button>
+    </div>
+  );
+};
+
+export default LoginSignup;
+
 export default Dashboard;
