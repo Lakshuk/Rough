@@ -1,29 +1,37 @@
 //auth context
 
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 
-// Create the AuthContext
-export const AuthContext = createContext();
+// Create AuthContext
+const AuthContext = createContext();
 
+// Custom hook for consuming AuthContext
+export const useAuth = () => {
+  return useContext(AuthContext);
+};
+
+// AuthProvider component
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  const login = (email, password) => {
-    // Mock login API (replace this with real API call)
-    if (email === "test@test.com" && password === "password") {
-      setUser({ email });
-      navigate("/employee-details"); // Redirect to the dashboard
-    } else {
-      alert("Invalid credentials");
-    }
+  const register = (email, password) => {
+    // Mock registration logic (use actual API for production)
+    localStorage.setItem("user", JSON.stringify({ email, password }));
+    alert("Registration successful. Please login.");
+    navigate("/login");
   };
 
-  const signUp = (email, password) => {
-    // Mock sign-up API (replace this with real API call)
-    setUser({ email });
-    navigate("/login"); // Redirect to login page
+  const login = (email, password) => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+
+    if (storedUser && storedUser.email === email && storedUser.password === password) {
+      setUser({ email });
+      navigate("/dashboard");
+    } else {
+      alert("Invalid email or password");
+    }
   };
 
   const logout = () => {
@@ -32,7 +40,7 @@ const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signUp, logout }}>
+    <AuthContext.Provider value={{ user, register, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
@@ -42,17 +50,52 @@ export default AuthProvider;
 
 
 
-//login 
+//app.jsx
 
-import React, { useContext, useState } from "react";
-import { AuthContext } from "../context/AuthContext";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import AuthProvider, { useAuth } from "./context/AuthContext";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Dashboard from "./pages/Dashboard";
+
+const App = () => {
+  return (
+    <Router>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="*" element={<Navigate to="/login" />} />
+        </Routes>
+      </AuthProvider>
+    </Router>
+  );
+};
+
+// ProtectedRoute to prevent unauthenticated access
+const ProtectedRoute = ({ children }) => {
+  const { user } = useAuth();
+
+  return user ? children : <Navigate to="/login" />;
+};
+
+export default App;
+
+
+//login
+
+import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { Link } from "react-router-dom";
 
 const Login = () => {
-  const { login } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { login } = useAuth();
 
-  const handleLogin = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     login(email, password);
   };
@@ -60,27 +103,26 @@ const Login = () => {
   return (
     <div>
       <h2>Login</h2>
-      <form onSubmit={handleLogin}>
-        <div>
-          <label>Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
         <button type="submit">Login</button>
       </form>
+      <p>
+        Don't have an account? <Link to="/signup">Signup</Link>
+      </p>
     </div>
   );
 };
@@ -88,176 +130,68 @@ const Login = () => {
 export default Login;
 
 
-//signup
 
+//signup 
 
-import React, { useContext, useState } from "react";
-import { AuthContext } from "../context/AuthContext";
+import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { Link } from "react-router-dom";
 
-const SignUp = () => {
-  const { signUp } = useContext(AuthContext);
+const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { register } = useAuth();
 
-  const handleSignUp = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    signUp(email, password);
+    register(email, password);
   };
 
   return (
     <div>
-      <h2>Sign Up</h2>
-      <form onSubmit={handleSignUp}>
-        <div>
-          <label>Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit">Sign Up</button>
+      <h2>Signup</h2>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit">Register</button>
       </form>
+      <p>
+        Already have an account? <Link to="/login">Login</Link>
+      </p>
     </div>
   );
 };
 
-export default SignUp;
+export default Signup;
 
 
-
-
-//private route 
-
-import React, { useContext } from "react";
-import { Navigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
-
-const PrivateRoute = ({ children }) => {
-  const { user } = useContext(AuthContext);
-
-  return user ? children : <Navigate to="/login" />;
-};
-
-export default PrivateRoute;
-
-
-//app
+//dashboard 
 
 import React from "react";
-import { Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import SignUp from "./pages/SignUp";
-import EmployeeDetails from "./components/EmployeeDetails"; // Your existing component
-import AddEmployee from "./components/AddEmployee"; // Your existing component
-import UpdateEmployee from "./components/UpdateEmployee"; // Your existing component
-import ViewEmployee from "./components/ViewEmployee"; // Your existing component
-import PrivateRoute from "./components/PrivateRoute";
-import AuthProvider from "./context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 
-const App = () => {
+const Dashboard = () => {
+  const { user, logout } = useAuth();
+
   return (
-    <AuthProvider>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route
-          path="/employee-details"
-          element={
-            <PrivateRoute>
-              <EmployeeDetails />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/add-employee"
-          element={
-            <PrivateRoute>
-              <AddEmployee />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/update-employee"
-          element={
-            <PrivateRoute>
-              <UpdateEmployee />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/view-employee"
-          element={
-            <PrivateRoute>
-              <ViewEmployee />
-            </PrivateRoute>
-          }
-        />
-      </Routes>
-    </AuthProvider>
+    <div>
+      <h1>Welcome, {user?.email}</h1>
+      <button onClick={logout}>Logout</button>
+      <p>This is the protected dashboard page.</p>
+    </div>
   );
 };
 
-export default App;
-
-
-//new app context 
-
-import React, { createContext, useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
-
-// Create the AuthContext
-export const AuthContext = createContext();
-
-// Custom hook to use AuthContext
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-};
-
-const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const navigate = useNavigate();
-
-  const login = (email, password) => {
-    // Mock login API (replace with real API call)
-    if (email === "test@test.com" && password === "password") {
-      setUser({ email });
-      navigate("/employee-details"); // Redirect to dashboard
-    } else {
-      alert("Invalid credentials");
-    }
-  };
-
-  const signUp = (email, password) => {
-    // Mock sign-up API (replace with real API call)
-    setUser({ email });
-    navigate("/login"); // Redirect to login page
-  };
-
-  const logout = () => {
-    setUser(null);
-    navigate("/login");
-  };
-
-  return (
-    <AuthContext.Provider value={{ user, login, signUp, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-export default AuthProvider;
+export default Dashboard;
