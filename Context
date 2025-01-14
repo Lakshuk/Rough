@@ -194,4 +194,186 @@ const Dashboard = () => {
   );
 };
 
+
+
+
+
+//new authContext
+
+import React, { createContext, useState } from 'react';
+
+// Create context for authentication
+export const AuthContext = createContext();
+
+// AuthProvider Component
+export const AuthProvider = ({ children }) => {
+  const [users, setUsers] = useState([]); // List of registered users
+  const [currentUser, setCurrentUser] = useState(null); // Logged-in user
+
+  // Register a new user
+  const register = (email, password) => {
+    const existingUser = users.find(user => user.email === email);
+    if (existingUser) {
+      return { success: false, message: 'User already exists' };
+    }
+    setUsers([...users, { email, password }]);
+    return { success: true, message: 'Registration successful' };
+  };
+
+  // Login an existing user
+  const login = (email, password) => {
+    const user = users.find(user => user.email === email && user.password === password);
+    if (user) {
+      setCurrentUser(user);
+      return { success: true, message: 'Login successful' };
+    }
+    return { success: false, message: 'Invalid email or password' };
+  };
+
+  // Logout the current user
+  const logout = () => setCurrentUser(null);
+
+  return (
+    <AuthContext.Provider value={{ currentUser, register, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+
+
+//loginsignup
+
+import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from './AuthContext';
+
+const LoginSignup = () => {
+  const { currentUser, register, login } = useContext(AuthContext);
+  const [isLogin, setIsLogin] = useState(true); // Toggle between login and sign-up
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (isLogin) {
+      // Login process
+      const result = login(email, password);
+      setMessage(result.message);
+      if (result.success) {
+        navigate('/employee-list');
+      }
+    } else {
+      // Registration process
+      const result = register(email, password);
+      setMessage(result.message);
+      if (result.success) {
+        setIsLogin(true); // Switch to login form after registration
+      }
+    }
+  };
+
+  return (
+    <div>
+      <h2>{isLogin ? 'Login' : 'Sign Up'}</h2>
+      <form onSubmit={handleSubmit}>
+        <label>Email:</label>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <label>Password:</label>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit">{isLogin ? 'Login' : 'Sign Up'}</button>
+      </form>
+      {message && <p>{message}</p>}
+      <button onClick={() => setIsLogin(!isLogin)}>
+        {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login'}
+      </button>
+    </div>
+  );
+};
+
+export default LoginSignup;
+
+
+
+
+//private route
+
+import React, { useContext } from 'react';
+import { Navigate } from 'react-router-dom';
+import { AuthContext } from './AuthContext';
+
+const PrivateRoute = ({ children }) => {
+  const { currentUser } = useContext(AuthContext);
+
+  // If no user is logged in, redirect to the login page
+  return currentUser ? children : <Navigate to="/login-signup" />;
+};
+
+export default PrivateRoute;
+
+
+
+//app.jsx
+
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './AuthContext';
+import LoginSignup from './LoginSignup';
+import EmployeeList from './EmployeeList';
+import EmployeeDetails from './EmployeeDetails';
+import Update from './Update';
+import PrivateRoute from './PrivateRoute';
+
+const App = () => {
+  return (
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/login-signup" element={<LoginSignup />} />
+          
+          {/* Protected Routes */}
+          <Route
+            path="/employee-list"
+            element={
+              <PrivateRoute>
+                <EmployeeList />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/employee-details"
+            element={
+              <PrivateRoute>
+                <EmployeeDetails />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/update"
+            element={
+              <PrivateRoute>
+                <Update />
+              </PrivateRoute>
+            }
+          />
+        </Routes>
+      </Router>
+    </AuthProvider>
+  );
+};
+
+export default App;
+
 export default Dashboard;
