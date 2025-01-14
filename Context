@@ -1,237 +1,51 @@
 //auth context
 
-import React, { createContext, useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
-
-// Create AuthContext
-const AuthContext = createContext();
-
-// Custom hook for consuming AuthContext
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
-
-// AuthProvider component
-const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const navigate = useNavigate();
-
-  const register = (email, password) => {
-    // Mock registration logic (use actual API for production)
-    localStorage.setItem("user", JSON.stringify({ email, password }));
-    alert("Registration successful. Please login.");
-    navigate("/login");
-  };
-
-  const login = (email, password) => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-
-    if (storedUser && storedUser.email === email && storedUser.password === password) {
-      setUser({ email });
-      navigate("/dashboard");
-    } else {
-      alert("Invalid email or password");
-    }
-  };
-
-  const logout = () => {
-    setUser(null);
-    navigate("/login");
-  };
-
-  return (
-    <AuthContext.Provider value={{ user, register, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-export default AuthProvider;
-
-
-
-//app.jsx
-
-import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import AuthProvider, { useAuth } from "./context/AuthContext";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Dashboard from "./pages/Dashboard";
-
-const App = () => {
-  return (
-    <Router>
-      <AuthProvider>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="*" element={<Navigate to="/login" />} />
-        </Routes>
-      </AuthProvider>
-    </Router>
-  );
-};
-
-// ProtectedRoute to prevent unauthenticated access
-const ProtectedRoute = ({ children }) => {
-  const { user } = useAuth();
-
-  return user ? children : <Navigate to="/login" />;
-};
-
-export default App;
-
-
-//login
-
-import React, { useState } from "react";
-import { useAuth } from "../context/AuthContext";
-import { Link } from "react-router-dom";
-
-const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const { login } = useAuth();
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    login(email, password);
-  };
-
-  return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit">Login</button>
-      </form>
-      <p>
-        Don't have an account? <Link to="/signup">Signup</Link>
-      </p>
-    </div>
-  );
-};
-
-export default Login;
-
-
-
-//signup 
-
-import React, { useState } from "react";
-import { useAuth } from "../context/AuthContext";
-import { Link } from "react-router-dom";
-
-const Signup = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const { register } = useAuth();
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    register(email, password);
-  };
-
-  return (
-    <div>
-      <h2>Signup</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit">Register</button>
-      </form>
-      <p>
-        Already have an account? <Link to="/login">Login</Link>
-      </p>
-    </div>
-  );
-};
-
-export default Signup;
-
-
-//dashboard 
-
-import React from "react";
-import { useAuth } from "../context/AuthContext";
-
-const Dashboard = () => {
-  const { user, logout } = useAuth();
-
-  return (
-    <div>
-      <h1>Welcome, {user?.email}</h1>
-      <button onClick={logout}>Logout</button>
-      <p>This is the protected dashboard page.</p>
-    </div>
-  );
-};
-
-
-
-
-
-//new authContext
-
 import React, { createContext, useState } from 'react';
 
-// Create context for authentication
+// Create AuthContext
 export const AuthContext = createContext();
 
 // AuthProvider Component
 export const AuthProvider = ({ children }) => {
-  const [users, setUsers] = useState([]); // List of registered users
-  const [currentUser, setCurrentUser] = useState(null); // Logged-in user
+  const [currentUser, setCurrentUser] = useState(
+    JSON.parse(localStorage.getItem('user')) || null
+  );
 
-  // Register a new user
-  const register = (email, password) => {
-    const existingUser = users.find(user => user.email === email);
+  // Register function
+  const register = (username, password) => {
+    const users = JSON.parse(localStorage.getItem('users')) || [];
+    const existingUser = users.find((user) => user.username === username);
+
     if (existingUser) {
-      return { success: false, message: 'User already exists' };
+      return { success: false, message: 'User already exists!' };
     }
-    setUsers([...users, { email, password }]);
-    return { success: true, message: 'Registration successful' };
+
+    users.push({ username, password });
+    localStorage.setItem('users', JSON.stringify(users));
+    return { success: true, message: 'Registration successful!' };
   };
 
-  // Login an existing user
-  const login = (email, password) => {
-    const user = users.find(user => user.email === email && user.password === password);
+  // Login function
+  const login = (username, password) => {
+    const users = JSON.parse(localStorage.getItem('users')) || [];
+    const user = users.find(
+      (user) => user.username === username && user.password === password
+    );
+
     if (user) {
       setCurrentUser(user);
-      return { success: true, message: 'Login successful' };
+      localStorage.setItem('user', JSON.stringify(user));
+      return { success: true, message: 'Login successful!' };
+    } else {
+      return { success: false, message: 'Invalid credentials!' };
     }
-    return { success: false, message: 'Invalid email or password' };
   };
 
-  // Logout the current user
-  const logout = () => setCurrentUser(null);
+  // Logout function
+  const logout = () => {
+    setCurrentUser(null);
+    localStorage.removeItem('user');
+  };
 
   return (
     <AuthContext.Provider value={{ currentUser, register, login, logout }}>
@@ -242,98 +56,17 @@ export const AuthProvider = ({ children }) => {
 
 
 
-//loginsignup
-
-import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthContext } from './AuthContext';
-
-const LoginSignup = () => {
-  const { currentUser, register, login } = useContext(AuthContext);
-  const [isLogin, setIsLogin] = useState(true); // Toggle between login and sign-up
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
-  const navigate = useNavigate();
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (isLogin) {
-      // Login process
-      const result = login(email, password);
-      setMessage(result.message);
-      if (result.success) {
-        navigate('/employee-list');
-      }
-    } else {
-      // Registration process
-      const result = register(email, password);
-      setMessage(result.message);
-      if (result.success) {
-        setIsLogin(true); // Switch to login form after registration
-      }
-    }
-  };
-
-  return (
-    <div>
-      <h2>{isLogin ? 'Login' : 'Sign Up'}</h2>
-      <form onSubmit={handleSubmit}>
-        <label>Email:</label>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <label>Password:</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit">{isLogin ? 'Login' : 'Sign Up'}</button>
-      </form>
-      {message && <p>{message}</p>}
-      <button onClick={() => setIsLogin(!isLogin)}>
-        {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login'}
-      </button>
-    </div>
-  );
-};
-
-export default LoginSignup;
-
-
-
-
-//private route
-
-import React, { useContext } from 'react';
-import { Navigate } from 'react-router-dom';
-import { AuthContext } from './AuthContext';
-
-const PrivateRoute = ({ children }) => {
-  const { currentUser } = useContext(AuthContext);
-
-  // If no user is logged in, redirect to the login page
-  return currentUser ? children : <Navigate to="/login-signup" />;
-};
-
-export default PrivateRoute;
-
-
-
 //app.jsx
 
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './AuthContext';
 import LoginSignup from './LoginSignup';
+import AddEmployee from './AddEmployee';
 import EmployeeList from './EmployeeList';
 import EmployeeDetails from './EmployeeDetails';
 import Update from './Update';
+import EmployeeDelete from './EmployeeDelete';
 import PrivateRoute from './PrivateRoute';
 
 const App = () => {
@@ -341,9 +74,18 @@ const App = () => {
     <AuthProvider>
       <Router>
         <Routes>
+          {/* Public Route */}
           <Route path="/login-signup" element={<LoginSignup />} />
-          
+
           {/* Protected Routes */}
+          <Route
+            path="/add-employee"
+            element={
+              <PrivateRoute>
+                <AddEmployee />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/employee-list"
             element={
@@ -368,6 +110,14 @@ const App = () => {
               </PrivateRoute>
             }
           />
+          <Route
+            path="/employee-delete"
+            element={
+              <PrivateRoute>
+                <EmployeeDelete />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </Router>
     </AuthProvider>
@@ -377,17 +127,33 @@ const App = () => {
 export default App;
 
 
+//private route
 
-//new loginsignup
+import React, { useContext } from 'react';
+import { Navigate } from 'react-router-dom';
+import { AuthContext } from './AuthContext';
+
+const PrivateRoute = ({ children }) => {
+  const { currentUser } = useContext(AuthContext);
+
+  return currentUser ? children : <Navigate to="/login-signup" />;
+};
+
+export default PrivateRoute;
+
+
+
+//loginsignup
+
 
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from './AuthContext';
 
 const LoginSignup = () => {
-  const { currentUser, register, login } = useContext(AuthContext);
-  const [isLogin, setIsLogin] = useState(true); // Toggle between login and sign-up
-  const [email, setEmail] = useState('');
+  const { register, login } = useContext(AuthContext);
+  const [isLogin, setIsLogin] = useState(true);
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
@@ -395,18 +161,16 @@ const LoginSignup = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (isLogin) {
-      // Login process
-      const result = login(email, password);
+      const result = login(username, password);
       setMessage(result.message);
       if (result.success) {
-        navigate('/add-employee'); // Redirect to Add Employee page
+        navigate('/add-employee'); // Redirect after login
       }
     } else {
-      // Registration process
-      const result = register(email, password);
+      const result = register(username, password);
       setMessage(result.message);
       if (result.success) {
-        setIsLogin(true); // Switch to login form after registration
+        setIsLogin(true); // Switch to login after successful registration
       }
     }
   };
@@ -415,11 +179,11 @@ const LoginSignup = () => {
     <div>
       <h2>{isLogin ? 'Login' : 'Sign Up'}</h2>
       <form onSubmit={handleSubmit}>
-        <label>Email:</label>
+        <label>Username:</label>
         <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
           required
         />
         <label>Password:</label>
@@ -441,4 +205,9 @@ const LoginSignup = () => {
 
 export default LoginSignup;
 
-export default Dashboard;
+
+
+
+
+
+
