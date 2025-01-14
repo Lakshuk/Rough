@@ -1,119 +1,143 @@
-//auth context 
+//auth context
 
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 
-// Create context
-export const AuthContext = createContext();
+const AuthContext = createContext();
 
-// Provide context
 export const AuthProvider = ({ children }) => {
-  const [users, setUsers] = useState([]); // To store registered users
   const [currentUser, setCurrentUser] = useState(null);
+  const navigate = useNavigate();
 
-  // Register a new user
   const register = (email, password) => {
-    const existingUser = users.find((user) => user.email === email);
-    if (existingUser) {
-      return { success: false, message: 'User already exists' };
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+    const userExists = users.some((user) => user.email === email);
+
+    if (userExists) {
+      alert("User already registered. Please log in.");
+      navigate("/login");
+    } else {
+      users.push({ email, password });
+      localStorage.setItem("users", JSON.stringify(users));
+      alert("Registration successful! Please log in.");
+      navigate("/login");
     }
-    setUsers([...users, { email, password }]);
-    return { success: true, message: 'Registration successful' };
   };
 
-  // Login a user
   const login = (email, password) => {
-    const user = users.find((user) => user.email === email && user.password === password);
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+    const user = users.find(
+      (user) => user.email === email && user.password === password
+    );
+
     if (user) {
       setCurrentUser(user);
-      return { success: true, message: 'Login successful' };
+      alert("Login successful!");
+      navigate("/employee-details");
+    } else {
+      alert("Invalid credentials!");
     }
-    return { success: false, message: 'Invalid email or password' };
   };
 
-  // Logout a user
-  const logout = () => setCurrentUser(null);
+  const logout = () => {
+    setCurrentUser(null);
+    navigate("/login");
+  };
+
+  const isAuthenticated = !!currentUser;
 
   return (
-    <AuthContext.Provider value={{ users, currentUser, register, login, logout }}>
+    <AuthContext.Provider value={{ currentUser, register, login, logout, isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
+export const useAuth = () => useContext(AuthContext);
+
 
 //login
 
-import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthContext } from './AuthContext';
+import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
-  const { login } = useContext(AuthContext);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
-  const navigate = useNavigate();
+  const { login } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const result = login(email, password);
-    setMessage(result.message);
-    if (result.success) {
-      navigate('/employee-details');
-    }
+    login(email, password);
   };
 
   return (
-    <div>
+    <div className="auth-container">
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
-        <label>Email:</label>
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <label>Password:</label>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
         <button type="submit">Login</button>
       </form>
-      {message && <p>{message}</p>}
+      <p>
+        Don't have an account? <a href="/signup">Sign Up</a>
+      </p>
     </div>
   );
 };
 
 export default Login;
 
-
 //sign-up 
 
-import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthContext } from './AuthContext';
+import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 const SignUp = () => {
-  const { register } = useContext(AuthContext);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
-  const navigate = useNavigate();
+  const { register } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const result = register(email, password);
-    setMessage(result.message);
-    if (result.success) {
-      navigate('/login');
-    }
+    register(email, password);
   };
 
   return (
-    <div>
+    <div className="auth-container">
       <h2>Sign Up</h2>
       <form onSubmit={handleSubmit}>
-        <label>Email:</label>
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <label>Password:</label>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        <button type="submit">Register</button>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit">Sign Up</button>
       </form>
-      {message && <p>{message}</p>}
+      <p>
+        Already have an account? <a href="/login">Login</a>
+      </p>
     </div>
   );
 };
@@ -121,44 +145,48 @@ const SignUp = () => {
 export default SignUp;
 
 
-//private route
+//protectedRoute
 
-import React, { useContext } from 'react';
-import { Navigate } from 'react-router-dom';
-import { AuthContext } from './AuthContext';
+import React from "react";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-const PrivateRoute = ({ children }) => {
-  const { currentUser } = useContext(AuthContext);
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated } = useAuth();
 
-  return currentUser ? children : <Navigate to="/login" />;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+
+  return children;
 };
 
-export default PrivateRoute;
+export default ProtectedRoute;
 
 
 //app.jsx
 
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './AuthContext';
-import SignUp from './SignUp';
-import Login from './Login';
-import EmployeeDetails from './EmployeeDetails';
-import PrivateRoute from './PrivateRoute';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import Login from "./components/Login";
+import SignUp from "./components/SignUp";
+import EmployeeDetails from "./components/EmployeeDetails";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
   return (
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
           <Route
             path="/employee-details"
             element={
-              <PrivateRoute>
+              <ProtectedRoute>
                 <EmployeeDetails />
-              </PrivateRoute>
+              </ProtectedRoute>
             }
           />
         </Routes>
