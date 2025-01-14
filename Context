@@ -1,140 +1,79 @@
-//app.jxs
+//auth context 
 
-import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./AuthContext";
-import Login from "./components/Login";
-import Signup from "./components/Signup";
-import Employee from "./components/Employee";
-import Update from "./components/Update";
-
-function App() {
-  return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          {/* Protected Routes */}
-          <Route path="/employees" element={<ProtectedRoute Component={Employee} />} />
-          <Route path="/employees/update/:id" element={<ProtectedRoute Component={Update} />} />
-          {/* Default Route */}
-          <Route path="*" element={<Navigate to="/login" />} />
-        </Routes>
-      </Router>
-    </AuthProvider>
-  );
-}
-
-// ProtectedRoute Component
-const ProtectedRoute = ({ Component }) => {
-  const { isAuthenticated } = React.useContext(AuthContext);
-  return isAuthenticated ? <Component /> : <Navigate to="/login" />;
-};
-
-export default App;
-
-
-
-
-//authContext.js
-
-import React, { createContext, useState } from "react";
+import React, { createContext, useState } from 'react';
 
 // Create context
 export const AuthContext = createContext();
 
-// AuthProvider Component
+// Provide context
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null); // Store logged-in user info
+  const [users, setUsers] = useState([]); // To store registered users
+  const [currentUser, setCurrentUser] = useState(null);
 
-  // Login Function
-  const login = (email, password) => {
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-    const validUser = users.find(
-      (user) => user.email === email && user.password === password
-    );
-    if (validUser) {
-      setIsAuthenticated(true);
-      setUser(validUser);
-      return true;
-    } else {
-      return false;
-    }
-  };
-
-  // Signup Function
-  const signup = (email, password) => {
-    const users = JSON.parse(localStorage.getItem("users")) || [];
+  // Register a new user
+  const register = (email, password) => {
     const existingUser = users.find((user) => user.email === email);
     if (existingUser) {
-      return false; // User already exists
+      return { success: false, message: 'User already exists' };
     }
-    const newUser = { email, password };
-    users.push(newUser);
-    localStorage.setItem("users", JSON.stringify(users));
-    return true;
+    setUsers([...users, { email, password }]);
+    return { success: true, message: 'Registration successful' };
   };
 
-  // Logout Function
-  const logout = () => {
-    setIsAuthenticated(false);
-    setUser(null);
+  // Login a user
+  const login = (email, password) => {
+    const user = users.find((user) => user.email === email && user.password === password);
+    if (user) {
+      setCurrentUser(user);
+      return { success: true, message: 'Login successful' };
+    }
+    return { success: false, message: 'Invalid email or password' };
   };
+
+  // Logout a user
+  const logout = () => setCurrentUser(null);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, signup, logout }}>
+    <AuthContext.Provider value={{ users, currentUser, register, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
 
+//login
 
-//login.jsx
-
-import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../AuthContext";
+import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from './AuthContext';
 
 const Login = () => {
-  const [loginDetails, setLoginDetails] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
   const { login } = useContext(AuthContext);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setLoginDetails({ ...loginDetails, [name]: value });
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const isLoggedIn = login(loginDetails.email, loginDetails.password);
-    if (isLoggedIn) {
-      navigate("/employees"); // Redirect to Employee List
-    } else {
-      setError("Invalid email or password");
+    const result = login(email, password);
+    setMessage(result.message);
+    if (result.success) {
+      navigate('/employee-details');
     }
   };
 
   return (
-    <div className="form-container">
-      <form className="form-card" onSubmit={handleSubmit}>
-        <h2>Login</h2>
-        {error && <p className="error-text">{error}</p>}
-        <div className="form-group">
-          <label>Email:</label>
-          <input type="email" name="email" onChange={handleChange} required />
-        </div>
-        <div className="form-group">
-          <label>Password:</label>
-          <input type="password" name="password" onChange={handleChange} required />
-        </div>
-        <button type="submit" className="btn-save">Login</button>
+    <div>
+      <h2>Login</h2>
+      <form onSubmit={handleSubmit}>
+        <label>Email:</label>
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <label>Password:</label>
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <button type="submit">Login</button>
       </form>
+      {message && <p>{message}</p>}
     </div>
   );
 };
@@ -142,78 +81,90 @@ const Login = () => {
 export default Login;
 
 
-//signup.jsx
+//sign-up 
 
-import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../AuthContext";
+import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from './AuthContext';
 
-const Signup = () => {
-  const [signupDetails, setSignupDetails] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
-  const { signup } = useContext(AuthContext);
+const SignUp = () => {
+  const { register } = useContext(AuthContext);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setSignupDetails({ ...signupDetails, [name]: value });
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const isSignedUp = signup(signupDetails.email, signupDetails.password);
-    if (isSignedUp) {
-      alert("Signup successful! Please log in.");
-      navigate("/login");
-    } else {
-      setError("User already exists");
+    const result = register(email, password);
+    setMessage(result.message);
+    if (result.success) {
+      navigate('/login');
     }
   };
 
   return (
-    <div className="form-container">
-      <form className="form-card" onSubmit={handleSubmit}>
-        <h2>Signup</h2>
-        {error && <p className="error-text">{error}</p>}
-        <div className="form-group">
-          <label>Email:</label>
-          <input type="email" name="email" onChange={handleChange} required />
-        </div>
-        <div className="form-group">
-          <label>Password:</label>
-          <input type="password" name="password" onChange={handleChange} required />
-        </div>
-        <button type="submit" className="btn-save">Signup</button>
-      </form>
-    </div>
-  );
-};
-
-export default Signup;
-
-
-//employee.jsx
-add logout here
-
-import React, { useContext } from "react";
-import { AuthContext } from "../AuthContext";
-
-const Employee = () => {
-  const { logout } = useContext(AuthContext);
-
-  const handleLogout = () => {
-    logout();
-  };
-
-  return (
     <div>
-      <button onClick={handleLogout} className="btn-save">Logout</button>
-      {/* Your existing Employee list UI */}
+      <h2>Sign Up</h2>
+      <form onSubmit={handleSubmit}>
+        <label>Email:</label>
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <label>Password:</label>
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <button type="submit">Register</button>
+      </form>
+      {message && <p>{message}</p>}
     </div>
   );
 };
 
-export default Employee;
+export default SignUp;
 
 
+//private route
 
+import React, { useContext } from 'react';
+import { Navigate } from 'react-router-dom';
+import { AuthContext } from './AuthContext';
+
+const PrivateRoute = ({ children }) => {
+  const { currentUser } = useContext(AuthContext);
+
+  return currentUser ? children : <Navigate to="/login" />;
+};
+
+export default PrivateRoute;
+
+
+//app.jsx
+
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './AuthContext';
+import SignUp from './SignUp';
+import Login from './Login';
+import EmployeeDetails from './EmployeeDetails';
+import PrivateRoute from './PrivateRoute';
+
+const App = () => {
+  return (
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/employee-details"
+            element={
+              <PrivateRoute>
+                <EmployeeDetails />
+              </PrivateRoute>
+            }
+          />
+        </Routes>
+      </Router>
+    </AuthProvider>
+  );
+};
+
+export default App;
