@@ -1,143 +1,133 @@
 //auth context
 
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const AuthContext = createContext();
+// Create the AuthContext
+export const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(null);
+const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
-  const register = (email, password) => {
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-    const userExists = users.some((user) => user.email === email);
-
-    if (userExists) {
-      alert("User already registered. Please log in.");
-      navigate("/login");
+  const login = (email, password) => {
+    // Mock login API (replace this with real API call)
+    if (email === "test@test.com" && password === "password") {
+      setUser({ email });
+      navigate("/employee-details"); // Redirect to the dashboard
     } else {
-      users.push({ email, password });
-      localStorage.setItem("users", JSON.stringify(users));
-      alert("Registration successful! Please log in.");
-      navigate("/login");
+      alert("Invalid credentials");
     }
   };
 
-  const login = (email, password) => {
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-    const user = users.find(
-      (user) => user.email === email && user.password === password
-    );
-
-    if (user) {
-      setCurrentUser(user);
-      alert("Login successful!");
-      navigate("/employee-details");
-    } else {
-      alert("Invalid credentials!");
-    }
+  const signUp = (email, password) => {
+    // Mock sign-up API (replace this with real API call)
+    setUser({ email });
+    navigate("/login"); // Redirect to login page
   };
 
   const logout = () => {
-    setCurrentUser(null);
+    setUser(null);
     navigate("/login");
   };
 
-  const isAuthenticated = !!currentUser;
-
   return (
-    <AuthContext.Provider value={{ currentUser, register, login, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ user, login, signUp, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export default AuthProvider;
 
 
-//login
 
-import React, { useState } from "react";
-import { useAuth } from "../context/AuthContext";
+//login 
+
+import React, { useContext, useState } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 const Login = () => {
-  const { login } = useAuth();
+  const { login } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
     login(email, password);
   };
 
   return (
-    <div className="auth-container">
+    <div>
       <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+      <form onSubmit={handleLogin}>
+        <div>
+          <label>Email:</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>Password:</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
         <button type="submit">Login</button>
       </form>
-      <p>
-        Don't have an account? <a href="/signup">Sign Up</a>
-      </p>
     </div>
   );
 };
 
 export default Login;
 
-//sign-up 
 
-import React, { useState } from "react";
-import { useAuth } from "../context/AuthContext";
+//signup
+
+
+import React, { useContext, useState } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 const SignUp = () => {
-  const { register } = useAuth();
+  const { signUp } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSignUp = (e) => {
     e.preventDefault();
-    register(email, password);
+    signUp(email, password);
   };
 
   return (
-    <div className="auth-container">
+    <div>
       <h2>Sign Up</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+      <form onSubmit={handleSignUp}>
+        <div>
+          <label>Email:</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label>Password:</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
         <button type="submit">Sign Up</button>
       </form>
-      <p>
-        Already have an account? <a href="/login">Login</a>
-      </p>
     </div>
   );
 };
@@ -145,52 +135,75 @@ const SignUp = () => {
 export default SignUp;
 
 
-//protectedRoute
 
-import React from "react";
+
+//private route 
+
+import React, { useContext } from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { AuthContext } from "../context/AuthContext";
 
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+const PrivateRoute = ({ children }) => {
+  const { user } = useContext(AuthContext);
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" />;
-  }
-
-  return children;
+  return user ? children : <Navigate to="/login" />;
 };
 
-export default ProtectedRoute;
+export default PrivateRoute;
 
 
-//app.jsx
+//app
 
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
-import Login from "./components/Login";
-import SignUp from "./components/SignUp";
-import EmployeeDetails from "./components/EmployeeDetails";
-import ProtectedRoute from "./components/ProtectedRoute";
+import { Routes, Route } from "react-router-dom";
+import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
+import EmployeeDetails from "./components/EmployeeDetails"; // Your existing component
+import AddEmployee from "./components/AddEmployee"; // Your existing component
+import UpdateEmployee from "./components/UpdateEmployee"; // Your existing component
+import ViewEmployee from "./components/ViewEmployee"; // Your existing component
+import PrivateRoute from "./components/PrivateRoute";
+import AuthProvider from "./context/AuthContext";
 
 const App = () => {
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route
-            path="/employee-details"
-            element={
-              <ProtectedRoute>
-                <EmployeeDetails />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </Router>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route
+          path="/employee-details"
+          element={
+            <PrivateRoute>
+              <EmployeeDetails />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/add-employee"
+          element={
+            <PrivateRoute>
+              <AddEmployee />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/update-employee"
+          element={
+            <PrivateRoute>
+              <UpdateEmployee />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/view-employee"
+          element={
+            <PrivateRoute>
+              <ViewEmployee />
+            </PrivateRoute>
+          }
+        />
+      </Routes>
     </AuthProvider>
   );
 };
