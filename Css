@@ -1,20 +1,21 @@
 body {
   font-family: 'Poppins', sans-serif;
-  background: linear-gradient(145deg, #e0e0e0, #f7f7f7); /* Sleek light gradient */
+  background: url('your-background-image.jpg') no-repeat center center/cover; /* Navy blue-themed background image */
   margin: 0;
   padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100vh;
-  color: #333;
+  color: #fff; /* White text color for better contrast */
 }
 
 .container {
-  background: linear-gradient(145deg, #ffffff, #f2f2f2); /* Subtle card gradient */
+  background: rgba(255, 255, 255, 0.1); /* Transparent white for contrast with the navy background */
+  backdrop-filter: blur(10px); /* Frosted glass effect */
   padding: 30px;
   border-radius: 12px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1), 0 -2px 6px rgba(255, 255, 255, 0.5);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
   max-width: 360px;
   width: 100%;
   text-align: center;
@@ -23,69 +24,75 @@ body {
 h2 {
   font-size: 24px;
   font-weight: bold;
-  color: #4c4c4c;
+  color: #f0f0f0; /* Light gray for better contrast */
   margin-bottom: 15px;
 }
 
 form {
   display: flex;
   flex-direction: column;
-  gap: 8px; /* Compact spacing between fields */
+  gap: 10px; /* Slightly compact spacing */
 }
 
 label {
   text-align: left;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
-  color: #666;
+  color: #e0e0e0; /* Light gray text */
   margin-bottom: 3px;
 }
 
 input {
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(255, 255, 255, 0.3); /* Semi-transparent white border */
   border-radius: 8px;
   font-size: 14px;
-  background: #fafafa;
+  background: rgba(255, 255, 255, 0.2); /* Semi-transparent background */
+  color: #fff;
   transition: border-color 0.3s, box-shadow 0.3s;
 }
 
+input::placeholder {
+  color: rgba(255, 255, 255, 0.7); /* Light white placeholder */
+}
+
 input:focus {
-  border-color: #6a5acd;
+  border-color: #4c6ef5; /* Bright blue for focus */
   outline: none;
-  box-shadow: 0 0 6px rgba(106, 90, 205, 0.3); /* Compact glow */
+  box-shadow: 0 0 6px rgba(76, 110, 245, 0.5); /* Glow effect */
 }
 
 button {
   padding: 10px;
-  background: linear-gradient(135deg, #6a5acd, #836fff); /* Modern gradient button */
+  background: linear-gradient(135deg, #4c6ef5, #788bff); /* Gradient button */
   color: #fff;
   font-size: 14px;
   font-weight: 600;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s;
 }
 
 button:hover {
-  background: linear-gradient(135deg, #5548c8, #756bff);
-  transform: translateY(-2px); /* Hover effect */
+  background: linear-gradient(135deg, #3b5bcc, #606eff); /* Brighter hover */
+  transform: translateY(-2px); /* Lift effect */
+  box-shadow: 0 4px 10px rgba(76, 110, 245, 0.5); /* Button shadow */
 }
 
 p {
   font-size: 13px;
-  color: #777;
+  color: #ddd; /* Subtle text color */
   margin-top: 10px;
 }
 
 a {
-  color: #6a5acd;
+  color: #4c6ef5;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.3s ease;
 }
 
 a:hover {
-  color: #5548c8;
+  color: #788bff;
 }
