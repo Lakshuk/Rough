@@ -1,6 +1,6 @@
 body {
   font-family: 'Poppins', sans-serif;
-  background: linear-gradient(135deg, #4e54c8, #8f94fb); /* Modern gradient background */
+  background: linear-gradient(145deg, #e0e0e0, #f7f7f7); /* Sleek light gradient */
   margin: 0;
   padding: 0;
   display: flex;
@@ -11,79 +11,81 @@ body {
 }
 
 .container {
-  background: #fff;
-  padding: 40px;
-  border-radius: 15px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Clean card shadow */
-  max-width: 400px;
+  background: linear-gradient(145deg, #ffffff, #f2f2f2); /* Subtle card gradient */
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1), 0 -2px 6px rgba(255, 255, 255, 0.5);
+  max-width: 360px;
   width: 100%;
   text-align: center;
 }
 
 h2 {
-  font-size: 28px;
-  font-weight: 600;
-  color: #4e54c8; /* Text color matching gradient */
-  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #4c4c4c;
+  margin-bottom: 15px;
 }
 
 form {
   display: flex;
   flex-direction: column;
-  gap: 10px; /* Reduced gap between inputs */
+  gap: 8px; /* Compact spacing between fields */
 }
 
 label {
   text-align: left;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
-  color: #555;
+  color: #666;
+  margin-bottom: 3px;
 }
 
 input {
-  padding: 12px;
+  padding: 10px;
   border: 1px solid #ddd;
   border-radius: 8px;
-  font-size: 16px;
+  font-size: 14px;
+  background: #fafafa;
   transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 input:focus {
-  border-color: #4e54c8;
+  border-color: #6a5acd;
   outline: none;
-  box-shadow: 0 0 8px rgba(78, 84, 200, 0.5); /* Subtle focus effect */
+  box-shadow: 0 0 6px rgba(106, 90, 205, 0.3); /* Compact glow */
 }
 
 button {
-  padding: 12px;
-  background: linear-gradient(135deg, #4e54c8, #8f94fb); /* Button gradient */
+  padding: 10px;
+  background: linear-gradient(135deg, #6a5acd, #836fff); /* Modern gradient button */
   color: #fff;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s;
+  transition: background 0.3s ease, transform 0.2s ease;
 }
 
 button:hover {
-  background: linear-gradient(135deg, #3a41a5, #6f73f2);
-  transform: translateY(-2px);
+  background: linear-gradient(135deg, #5548c8, #756bff);
+  transform: translateY(-2px); /* Hover effect */
 }
 
 p {
-  font-size: 14px;
-  color: #888;
-  margin-top: 15px;
+  font-size: 13px;
+  color: #777;
+  margin-top: 10px;
 }
 
 a {
-  color: #4e54c8;
+  color: #6a5acd;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.3s ease;
 }
 
 a:hover {
-  color: #6f73f2;
+  color: #5548c8;
 }
