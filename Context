@@ -1,410 +1,57 @@
-//auth context
+//service 
 
-import React, { createContext, useState } from 'react';
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-// Create AuthContext
-export const AuthContext = createContext();
+@Service
+public class UserService {
 
-// AuthProvider Component
-export const AuthProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(
-    JSON.parse(localStorage.getItem('user')) || null
-  );
+    @Autowired
+    private UserRepository userRepository;
 
-  // Register function
-  const register = (username, password) => {
-    const users = JSON.parse(localStorage.getItem('users')) || [];
-    const existingUser = users.find((user) => user.username === username);
+    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    if (existingUser) {
-      return { success: false, message: 'User already exists!' };
+    // Register user
+    public User registerUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
     }
 
-    users.push({ username, password });
-    localStorage.setItem('users', JSON.stringify(users));
-    return { success: true, message: 'Registration successful!' };
-  };
-
-  // Login function
-  const login = (username, password) => {
-    const users = JSON.parse(localStorage.getItem('users')) || [];
-    const user = users.find(
-      (user) => user.username === username && user.password === password
-    );
-
-    if (user) {
-      setCurrentUser(user);
-      localStorage.setItem('user', JSON.stringify(user));
-      return { success: true, message: 'Login successful!' };
-    } else {
-      return { success: false, message: 'Invalid credentials!' };
+    // Validate user credentials during login
+    public boolean validateUserLogin(String username, String password) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            return false; // User not found
+        }
+        return passwordEncoder.matches(password, user.getPassword());
     }
-  };
-
-  // Logout function
-  const logout = () => {
-    setCurrentUser(null);
-    localStorage.removeItem('user');
-  };
-
-  return (
-    <AuthContext.Provider value={{ currentUser, register, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
+}
 
 
+//controller 
 
-//app.jsx
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './AuthContext';
-import LoginSignup from './LoginSignup';
-import AddEmployee from './AddEmployee';
-import EmployeeList from './EmployeeList';
-import EmployeeDetails from './EmployeeDetails';
-import Update from './Update';
-import EmployeeDelete from './EmployeeDelete';
-import PrivateRoute from './PrivateRoute';
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
 
-const App = () => {
-  return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          {/* Public Route */}
-          <Route path="/login-signup" element={<LoginSignup />} />
+    @Autowired
+    private UserService userService;
 
-          {/* Protected Routes */}
-          <Route
-            path="/add-employee"
-            element={
-              <PrivateRoute>
-                <AddEmployee />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/employee-list"
-            element={
-              <PrivateRoute>
-                <EmployeeList />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/employee-details"
-            element={
-              <PrivateRoute>
-                <EmployeeDetails />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/update"
-            element={
-              <PrivateRoute>
-                <Update />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/employee-delete"
-            element={
-              <PrivateRoute>
-                <EmployeeDelete />
-              </PrivateRoute>
-            }
-          />
-        </Routes>
-      </Router>
-    </AuthProvider>
-  );
-};
-
-export default App;
-
-
-//private route
-
-import React, { useContext } from 'react';
-import { Navigate } from 'react-router-dom';
-import { AuthContext } from './AuthContext';
-
-const PrivateRoute = ({ children }) => {
-  const { currentUser } = useContext(AuthContext);
-
-  return currentUser ? children : <Navigate to="/login-signup" />;
-};
-
-export default PrivateRoute;
-
-
-
-//loginsignup
-
-
-import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthContext } from './AuthContext';
-
-const LoginSignup = () => {
-  const { register, login } = useContext(AuthContext);
-  const [isLogin, setIsLogin] = useState(true);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
-  const navigate = useNavigate();
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (isLogin) {
-      const result = login(username, password);
-      setMessage(result.message);
-      if (result.success) {
-        navigate('/add-employee'); // Redirect after login
-      }
-    } else {
-      const result = register(username, password);
-      setMessage(result.message);
-      if (result.success) {
-        setIsLogin(true); // Switch to login after successful registration
-      }
+    // Register a new user
+    @PostMapping("/register")
+    public User register(@RequestBody User user) {
+        return userService.registerUser(user);
     }
-  };
 
-  return (
-    <div>
-      <h2>{isLogin ? 'Login' : 'Sign Up'}</h2>
-      <form onSubmit={handleSubmit}>
-        <label>Username:</label>
-        <input
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        />
-        <label>Password:</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit">{isLogin ? 'Login' : 'Sign Up'}</button>
-      </form>
-      {message && <p>{message}</p>}
-      <button onClick={() => setIsLogin(!isLogin)}>
-        {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login'}
-      </button>
-    </div>
-  );
-};
-
-export default LoginSignup;
-
-
-
-
-
-
-
-
-
-//css login
-
-body {
-  font-family: 'Arial', sans-serif;
-  background: linear-gradient(135deg, #6b73ff, #000dff);
-  margin: 0;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
+    // Login validation
+    @PostMapping("/login")
+    public boolean login(@RequestParam String username, @RequestParam String password) {
+        return userService.validateUserLogin(username, password);
+    }
 }
-
-.container {
-  background: #fff;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  max-width: 400px;
-  width: 100%;
-}
-
-h2 {
-  text-align: center;
-  color: #333;
-  margin-bottom: 20px;
-}
-
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-label {
-  color: #555;
-  font-size: 14px;
-}
-
-input {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 16px;
-}
-
-input:focus {
-  border-color: #6b73ff;
-  outline: none;
-  box-shadow: 0 0 5px rgba(107, 115, 255, 0.5);
-}
-
-button {
-  padding: 12px;
-  background: #6b73ff;
-  color: #fff;
-  font-size: 16px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-button:hover {
-  background: #4c52d0;
-}
-
-p {
-  text-align: center;
-  color: #f00;
-  margin-top: 10px;
-  font-size: 14px;
-}
-
-.toggle-button {
-  text-align: center;
-  margin-top: 15px;
-}
-
-.toggle-button button {
-  background: none;
-  border: none;
-  color: #6b73ff;
-  font-size: 14px;
-  cursor: pointer;
-  text-decoration: underline;
-  transition: color 0.3s ease;
-}
-
-.toggle-button button:hover {
-  color: #4c52d0;
-}
-
-
-
-//
-/* Reset Default Styles */
-body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Poppins', sans-serif;
-    background: url('bg.jpg') no-repeat center center/cover;
-    color: #ffffff;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Center Form Container */
-.form-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 400px;
-    padding: 30px;
-    background: linear-gradient(135deg, rgba(0, 0, 50, 0.8), rgba(50, 0, 50, 0.7));
-    border-radius: 15px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-}
-
-/* Form Card */
-.form-card {
-    background: #ffffff;
-    width: 100%;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-}
-
-/* Form Title */
-.form-title {
-    font-size: 28px;
-    font-weight: bold;
-    color: #333333;
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-/* Form Group */
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    font-size: 16px;
-    font-weight: bold;
-    color: #333333;
-    margin-bottom: 5px;
-    display: block;
-}
-
-.form-group input {
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    border: 1px solid #cccccc;
-    border-radius: 8px;
-    outline: none;
-    transition: all 0.3s ease;
-}
-
-.form-group input:focus {
-    border-color: #3f5efb;
-    box-shadow: 0 0 8px rgba(63, 94, 251, 0.5);
-}
-
-/* Submit Button */
-.submit-btn {
-    width: 100%;
-    padding: 12px;
-    font-size: 18px;
-    font-weight: bold;
-    color: #ffffff;
-    background: #4a90e2;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.submit-btn:hover {
-    background: linear-gradient(90deg, #3f5efb, #fc466b);
-    box-shadow: 0 4px 10px rgba(63, 94, 251, 0.5);
-}
-
-/* Hover Effects for Form Card */
-.form-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
-}
-
 
 
