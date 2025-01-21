@@ -1,8 +1,8 @@
 //service 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
@@ -13,44 +13,50 @@ public class UserService {
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     // Register user
-    public User registerUser(User user) {
+    public String registerUser(User user) {
+        if (userRepository.findByUsername(user.getUsername()) != null) {
+            return "Username already exists!";
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+        userRepository.save(user);
+        return "User registered successfully!";
     }
 
-    // Validate user credentials during login
-    public boolean validateUserLogin(String username, String password) {
+    // Login user
+    public String loginUser(String username, String password) {
         User user = userRepository.findByUsername(username);
-        if (user == null) {
-            return false; // User not found
+        if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
+            return "Invalid credentials!";
         }
-        return passwordEncoder.matches(password, user.getPassword());
+        return "Login successful!";
     }
 }
 
 
 //controller 
 
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/users")
-public class UserController {
+@RequestMapping("/api/auth")
+public class AuthController {
 
     @Autowired
     private UserService userService;
 
-    // Register a new user
+    // Register user
     @PostMapping("/register")
-    public User register(@RequestBody User user) {
+    public String register(@RequestBody User user) {
         return userService.registerUser(user);
     }
 
-    // Login validation
+    // Login user
     @PostMapping("/login")
-    public boolean login(@RequestParam String username, @RequestParam String password) {
-        return userService.validateUserLogin(username, password);
+    public String login(@RequestParam String username, @RequestParam String password) {
+        return userService.loginUser(username, password);
     }
 }
 
