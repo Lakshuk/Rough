@@ -61,3 +61,46 @@ public class AuthController {
 }
 
 
+//
+
+package com.example.demo.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            .authorizeRequests()
+                .antMatchers("/h2-console/**").permitAll()  // Allow access to H2 console without login
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .anyRequest().authenticated()  // Other pages should be authenticated
+                .and()
+            .formLogin()
+                .loginPage("/login")  // Set custom login page if needed
+                .permitAll()
+                .and()
+            .logout()
+                .permitAll()
+                .and()
+            .csrf().ignoringAntMatchers("/h2-console/**");  // Disable CSRF for H2 console
+
+        // Allow frames to be loaded for H2 console
+        http.headers().frameOptions().sameOrigin();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
