@@ -265,3 +265,119 @@ const LoginSignup = () => {
 };
 
 export default LoginSignup;
+
+
+//
+
+import axios from "axios";
+
+export const AuthProvider = ({ children }) => {
+  const register = async (username, password, email) => {
+    try {
+      const response = await axios.post("/api/auth/register", {
+        username,
+        password,
+        email,
+      });
+      return { success: true, message: response.data };
+    } catch (error) {
+      return { success: false, message: error.response?.data || "Registration failed!" };
+    }
+  };
+
+  const login = async (username, password) => {
+    try {
+      const response = await axios.post("/api/auth/login", {
+        username,
+        password,
+      });
+      return { success: true, message: response.data };
+    } catch (error) {
+      return { success: false, message: error.response?.data || "Login failed!" };
+    }
+  };
+
+  return (
+    <AuthContext.Provider value={{ register, login }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+
+
+//
+
+const LoginSignup = () => {
+  const { register, login } = useContext(AuthContext);
+  const [isLogin, setIsLogin] = useState(true);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (isLogin) {
+      const result = await login(username, password);
+      setMessage(result.message);
+      if (result.success) {
+        navigate("/employee-list");
+      }
+    } else {
+      const result = await register(username, password, email);
+      setMessage(result.message);
+      if (result.success) {
+        setIsLogin(true);
+      }
+    }
+  };
+
+  return (
+    <div className="container">
+      <h2>{isLogin ? "LOGIN" : "SIGN UP"}</h2>
+      <form onSubmit={handleSubmit}>
+        <label>Username:</label>
+        <input
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+        />
+
+        <label>Password:</label>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+
+        {!isLogin && (
+          <>
+            <label>Email:</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </>
+        )}
+
+        <br />
+        <button type="submit">{isLogin ? "Login" : "Sign Up"}</button>
+        <br />
+      </form>
+      {message && <p>{message}</p>}
+      <div className="toggle-button">
+        <button onClick={() => setIsLogin(!isLogin)}>
+          {isLogin ? "Don't have an account? Sign Up" : "Already have an account? Login"}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default LoginSignup;
