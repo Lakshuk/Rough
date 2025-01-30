@@ -131,6 +131,197 @@ const Login = () => {
   );
 };
 
+
+
+
+//auty
+import React, { createContext, useContext, useState } from "react";
+
+export const AuthContext = createContext();
+export const useAuth = () => useContext(AuthContext);
+
+export const AuthProvider = ({ children }) => {
+  const [currentUser, setCurrentUser] = useState(null);
+
+  // Register function (calls backend API)
+  const register = async (username, password) => {
+    try {
+      const response = await fetch("http://localhost:8080/api/users/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+      return data; // { success: "true" or "false", message: "Registration successful!" }
+    } catch (error) {
+      return { success: false, message: "Server error" };
+    }
+  };
+
+  // Login function (calls backend API)
+  const login = async (username, password) => {
+    try {
+      const response = await fetch("http://localhost:8080/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (data.success === "true") {
+        setCurrentUser(username); // Set user as logged in
+      }
+
+      return data; // { success: "true" or "false", message: "Login successful!" }
+    } catch (error) {
+      return { success: false, message: "Server error" };
+    }
+  };
+
+  // Logout function
+  const logout = () => {
+    setCurrentUser(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ currentUser, register, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+
+//login
+
+import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import "./LoginSignup.css";
+
+const LoginSignup = () => {
+  const { register, login } = useContext(AuthContext);
+  const [isLogin, setIsLogin] = useState(true);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    let result;
+    if (isLogin) {
+      result = await login(username, password);
+      if (result.success === "true") {
+        navigate("/employee-list"); // Redirect after login
+      }
+    } else {
+      result = await register(username, password);
+      if (result.success === "true") {
+        setIsLogin(true); // Switch to login after successful registration
+      }
+    }
+    setMessage(result.message);
+  };
+
+  return (
+    <div className="container">
+      <h2>{isLogin ? "LOGIN" : "SIGN UP"}</h2>
+      <form onSubmit={handleSubmit}>
+        <label>Username:</label>
+        <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required />
+        <label>Password:</label>
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <button type="submit">{isLogin ? "Login" : "Sign Up"}</button>
+      </form>
+      {message && <p>{message}</p>}
+      <button onClick={() => setIsLogin(!isLogin)}>
+        {isLogin ? "Don't have an account? Sign Up" : "Already have an account? Login"}
+      </button>
+    </div>
+  );
+};
+
+export default LoginSignup;
+
+
+
+//controller 
+
+package com.example.demo.controller;
+
+import com.example.demo.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/users")
+@CrossOrigin(origins = "http://localhost:3000") // Allow frontend requests
+public class UserController {
+
+    @Autowired
+    private UserService userService;
+
+    @PostMapping("/register")
+    public Map<String, String> registerUser(@RequestBody Map<String, String> request) {
+        String username = request.get("username");
+        String password = request.get("password");
+        String message = userService.registerUser(username, password);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", message);
+        response.put("success", message.equals("Registration successful!") ? "true" : "false");
+        return response;
+    }
+
+    @PostMapping("/login")
+    public Map<String, String> loginUser(@RequestBody Map<String, String> request) {
+        String username = request.get("username");
+        String password = request.get("password");
+        boolean authenticated = userService.authenticateUser(username, password);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", authenticated ? "Login successful!" : "Invalid credentials!");
+        response.put("success", String.valueOf(authenticated));
+        return response;
+    }
+}
+
+
+//service 
+
+package com.example.demo.service;
+
+import com.example.demo.model.User;
+import com.example.demo.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.util.Optional;
+
+@Service
+public class UserService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    public String registerUser(String username, String password) {
+        Optional<User> existingUser = userRepository.findByUsername(username);
+        if (existingUser.isPresent()) {
+            return "User already exists!";
+        }
+        User newUser = new User(username, password);
+        userRepository.save(newUser);
+        return "Registration successful!";
+    }
+
+    public boolean authenticateUser(String username, String password) {
+        Optional<User> user = userRepository.findByUsername(username);
+        return user.map(value -> value.getPassword().equals(password)).orElse(false);
+    }
+}
+
 export default Login;
 
 
