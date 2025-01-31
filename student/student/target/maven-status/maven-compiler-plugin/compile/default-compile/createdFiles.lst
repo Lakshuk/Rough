@@ -1,0 +1,10 @@
+com\example\student\model\StudentDetails.class
+com\example\student\repository\StuRepo.class
+com\example\student\dto\StudentDto.class
+com\example\student\repository\StudentRepo.class
+com\example\student\controller\StudentController.class
+com\example\student\AppConfig.class
+com\example\student\StudentApplication.class
+com\example\student\model\Student.class
+com\example\student\service\StudentService.class
+com\example\student\service\EmailService.class
