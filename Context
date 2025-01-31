@@ -546,3 +546,170 @@ const LoginSignup = () => {
 
 export default LoginSignup;
 
+-------------------------
+
+//controller
+
+@Autowired
+	public StudentService studentService;
+	
+	
+	@PostMapping("/save")
+	public StudentDto create(@RequestBody StudentDto stu) {
+		return studentService.create(stu);
+	}
+	
+	@GetMapping("/get/{id}")
+	public StudentDto getById(@PathVariable Integer id) {
+		return studentService.getEmpById(id);
+	}
+	
+	@GetMapping("/getAll")
+	public List<StudentDto> getAll(){
+		return studentService.getAll();
+	}
+	
+	@GetMapping("/getAll1")
+	public List<Student> getAll1(){
+		return studentService.getAll1();
+	}
+	
+	@PutMapping("/update/{id}")
+	public Student updateStudent(@RequestBody StudentDto studentDto, @PathVariable Integer id) {
+		return studentService.updateStudent(studentDto, id);
+	}
+	
+	@DeleteMapping("/delete/{id}")
+	public void deleteEmp(@PathVariable Integer id) {
+		studentService.deleteStu(id);
+	}
+	
+	// Register user
+    @PostMapping("/user/register")
+    public ResponseEntity<String> register(@RequestBody UserDetails user) {
+         studentService.registerUser(user);
+    	return ResponseEntity.ok("User Register Successfully");	
+    }
+
+    // Login user
+    @PostMapping("/user/login")
+    public String login(@RequestParam String username, @RequestParam String password) {
+        return studentService.loginUser(username, password);
+    }
+
+
+//service
+
+
+//	@Autowired
+//	private StudentRepo studentRepo;
+	
+	@Autowired
+	private StudentRepository str;
+	
+	@Autowired
+	private UserDetailRepo userRepo;
+	
+	@Autowired
+	private ModelMapper modelMapper;
+	
+	@Autowired
+	public EmailService emailService;
+ 
+	
+	public StudentDto create(StudentDto stu) {
+		if(!UtilityClass.numbervalidate(stu.getNumber())) {
+			throw new IllegalArgumentException ("Invalid Mobile Number!");
+		}
+		Student student = modelMapper.map(stu, Student.class);
+		Student saveStu = str.save(student);
+		return modelMapper.map(saveStu, StudentDto.class);
+	}
+	
+	public List<StudentDto> getAll(){
+		Student stu = (Student) str.findAll();
+		return (List<StudentDto>) modelMapper.map(stu, StudentDto.class);
+	}
+
+	public List<Student> getAll1(){
+		return str.findAll();
+	}
+	
+	public StudentDto getEmpById(Integer id) {
+		Student stu = str.findById(id).orElseThrow(() -> new RuntimeException("Employee not found"));
+		return modelMapper.map(stu, StudentDto.class);
+	}
+	
+	public Student updateStudent(StudentDto studentDto, Integer id) {
+		Student emp = str.findById(id).orElseThrow (() -> new RuntimeException ("Employee not found"));
+		emp.setName(studentDto.getName());
+		emp.setNumber(studentDto.getNumber());
+		emp.setEmail(studentDto.getEmail());
+//		emp.setPassword(studentDto.getPassword());
+//		emp.setCountry(studentDto.getCountry());
+		emp.setDepartment(studentDto.getDepartment());
+		emp.setSalary(studentDto.getSalary());
+		return str.save(emp);
+	}
+	
+	public void deleteStu(Integer id) {
+		if(!str.existsById(id)) {
+			throw new RuntimeException("Employee" + id + "not found" );
+		}
+		str.deleteById(id);
+	}  
+	
+	
+	
+	// Register user
+    public String registerUser(UserDetails user) {
+        if (userRepo.findByUsername(user.getUsername()) != null) {
+            return "Username already exists!";
+        }
+//        user.setUserName(user.getUserName());
+//        user.setPassword(user.getPassword());
+//        user.setEmail(user.getEmail());
+        emailService.sendWelcomeEmail(user.getEmail(), user.getPassword());
+        userRepo.save(user);
+        return "User registered successfully!";
+    }
+    
+
+    // Login user
+    public String loginUser(String username, String password) {
+        UserDetails user = userRepo.findByUsername(username);
+        if (user == null || !user.getPassword().equals(password)) {
+            return "Invalid credentials!";
+        }
+        return "Login successful!";
+    }
+	
+	
+//	//Register
+//	public String registerUser(String username, String password) {
+//        Optional<UserDetails> existingUser = userRepo.findByUsername(username);
+//        if (existingUser.isPresent()) {
+//            return "User already exists!";
+//        }
+//        UserDetails newUser = new UserDetails();
+//        userRepo.save(newUser);
+//        return "Registration successful!";
+//    }
+//
+//	
+//	//Login
+//    public boolean authenticateUser(String username, String password) {
+//        Optional<UserDetails> user = userRepo.findByUsername(username);
+//        return user.map(value -> value.getPassword().equals(password)).orElse(false);
+//    }
+
+
+
+
+//repo
+
+UserDetails findByUsername(String username);
+
+//model
+
+
