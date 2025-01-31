@@ -1,0 +1,99 @@
+/* Employee List Page Styles */
+.employee-list-container {
+    padding: 100px;
+    background: linear-gradient(135deg);
+    min-height: 100vh;
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  /* Add Button */
+  .add-employee-btn {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #4caf50;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .logout-button{
+    display: inline-block;
+    margin-bottom: 20px;
+    margin-left: 15px;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #4caf50;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .add-employee-btn:hover {
+    background-color: #45a049;
+  }
+  
+  /* Employee Card Container */
+  .employee-card-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+  }
+/* H1 Styling */
+/* H1 Styling */
+
+
+
+  /* Individual Employee Card */
+  .employee-card {
+   /* Dark gray for contrast */
+padding: 26px;
+border-radius: 12px;
+text-align: center;
+color: #f3f3f3; /* Soft white text */
+font-weight: bold;
+box-shadow: 0 4px 12px rgba(24, 255, 255, 0.2); /* Electric blue shadow */
+transition: transform 0.3s ease, box-shadow 0.3s ease;
+border: 2px solid #18ffff; /* Electric blue border */
+  }
+  
+  .employee-card:hover {
+    transform: scale(1.05);
+box-shadow: 0 6px 16px rgba(24, 255, 255, 0.3);
+  }
+  
+  .employee-card h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .employee-card {
+      width: 100%;
+    }
+  
+    .add-employee-btn {
+      width: 100%;
+      text-align: center;
+    }
+  }
+
+  .add-button{
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    justify-items: center;
+    
+  }
+
+  
