@@ -727,5 +727,205 @@ spring.mail.password=your_email_password
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 
+-------------------
 
+//service
+
+// register user
+	public String registeruser(Register user) {
+	    if (registerRepo.findByUsername(user.getUsername()) != null) {
+	        return "username already exists!";
+	    }
+	    //emailService.sendWelcomeEmail(user.getEmail(), user.getPassword());
+	    //System.out.println(" name "+user.getUsername());
+	    registerRepo.save(user);
+	    return "user registered successfully!";
+	}
+
+
+    // Login user
+    public String loginUser(String username, String password) {
+        Login user = loginRepo.findByUsername(username);
+        if (user == null || !user.getPassword().equals(password)) {
+            return "Invalid credentials!";
+        }
+        return "Login successful!";
+    }
+
+//repo
+@Repository
+public interface RegisterRepo extends JpaRepository<Register, Integer>{
+	
+	Register findByUsername(String username); 
+}
+
+
+@Repository
+public interface LoginRepo extends JpaRepository<Login, Integer>{
+	
+	Login findByUsername(String username); 
+}
+
+
+
+
+//controller
+
+// Register user
+    @PostMapping("/user/register")
+    public String register(@RequestBody StudentDetails user) {
+        return studentService.registeruser(user);
+    }
+
+    // Login user
+    @PostMapping("/user/login")
+    public String login(@RequestBody String username, String password) {
+        return studentService.loginUser(username, password);
+    }
+
+
+//authprovider
+
+import React, { createContext, useContext, useState } from 'react';
+import axios from 'axios';
+
+export const AuthContext = createContext();
+export const useAuth = () => useContext(AuthContext);
+
+export const AuthProvider = ({ children }) => {
+  const [currentUser, setCurrentUser] = useState(null);
+
+  // Register function
+  const register = async (username, password, email) => {
+    try {
+      const response = await axios.post("http://localhost:8080/student/user/register", {
+        username,
+        password,
+        email,
+      });
+      return { success: true, message: response.data };
+    } catch (error) {
+      return { success: false, message: error.response?.data || "An error occurred!" };
+    }
+  };
+
+  // Login function
+  const login = async (username, password) => {
+    try {
+      const response = await axios.post("http://localhost:8080/student/user/login", { username, password });
+      setCurrentUser(username); // Store username in state
+      //localStorage.setItem('currentUser', username); // Persist username in localStorage
+      return { success: true, message: "Login successful!" };
+    } catch (error) {
+      return { success: false, message: "Invalid credentials!" };
+      console.log(response);
+    }
+  };
+
+  // Logout function
+  const logout = () => {
+    setCurrentUser(null); // Remove from state
+    // localStorage.removeItem('currentUser'); // Remove from localStorage
+  };
+
+  return (
+    <AuthContext.Provider value={{ currentUser, register, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+
+//loginsignup
+
+import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import "./LoginSignup.css";
+
+const LoginSignup = () => {
+  const { register, login } = useContext(AuthContext);
+  const [isLogin, setIsLogin] = useState(true);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    let result;
+    if (isLogin) {
+      result = await login(username, password);
+      if (result.success === true) {
+        console.log("Login Successful", result);
+        navigate("/add-employee"); // Redirect after login
+      }
+
+    } else {
+      result = await register(username, password, email);
+      if (result.success == true) {
+        console.log("Register Successful", result);
+        setIsLogin(true); // Switch to login after successful registration
+        navigate("/");
+      }
+      
+    }
+    setMessage(result.message);
+  };
+
+  return (
+    <div>
+      <h2>{isLogin ? 'Login' : 'Sign Up'}</h2>
+      <form onSubmit={handleSubmit}>
+        <label>Username:</label>
+        <input
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+        />
+        {!isLogin && (
+          <>
+            <label>Email:</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </>
+        )}
+        <label>Password:</label>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit">{isLogin ? 'Login' : 'Sign Up'}</button>
+      </form>
+      {message && <p>{message}</p>}
+      <button onClick={() => setIsLogin(!isLogin)}>
+        {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Login'}
+      </button>
+    </div>
+  );
+};
+
+export default LoginSignup;
+
+
+//protect
+import React, { useContext } from 'react';
+import { Navigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
+
+const PrivateRoute = ({ children }) => {
+  const { currentUser } = useContext(AuthContext);
+
+  return currentUser ? children : <Navigate to='/' />;
+};
+
+export default PrivateRoute;
 
