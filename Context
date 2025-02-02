@@ -929,3 +929,46 @@ const PrivateRoute = ({ children }) => {
 
 export default PrivateRoute;
 
+-----------
+
+//service
+
+// register user
+	public String registeruser(Register user) {
+	    if (registerRepo.findByUsername(user.getUsername()) != null) {
+	        return "username already exists!";
+	    }
+	    //emailService.sendWelcomeEmail(user.getEmail(), user.getPassword());
+	    //System.out.println(" name "+user.getUsername());
+	    registerRepo.save(user);
+	    return "user registered successfully!";
+	}
+
+
+    // Login user
+    public String loginUser(String username, String password) {
+        Register user = registerRepo.findByUsername(username);
+        if (user == null)  {	
+            return "Invalid credentials!";
+        }
+        if(!user.getPassword().equals(password)){	//comparing password with reg table
+        	return "Invalid credentials!";
+        }
+        return "Login successful!";
+    }
+
+
+//controller
+
+// Register user
+    @PostMapping("/user/register")
+    public String register(@RequestBody Register user) {
+        return studentService.registeruser(user);
+    }
+
+    // Login user
+    @PostMapping("/user/login")
+    public String login(@RequestBody Register reg) {
+        return studentService.loginUser(reg.getUsername(), reg.getPassword());
+    }
+
