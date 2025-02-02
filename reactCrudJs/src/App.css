@@ -1,0 +1,12 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background: url('bg.jpg') no-repeat center center/cover; /* Navy blue-themed background image */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    color: #fff; /* White text color for better contrast */
+  }
+  

@@ -1,0 +1,126 @@
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .employee-info{
+    justify-content: center;
+  }
+  
+  /* Employee Details Container */
+  .employee-details-container {
+    width: 400px;
+   
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  /* Employee Card */
+  .employee-card {
+    padding: 15px;
+    border-radius: 10px;
+    background: #ece9e9;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    
+  }
+
+
+  
+  .employee-card h1 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+    text-transform: capitalize;
+    text-align: center;
+  }
+  
+  .employee-card p {
+    font-size: 16px;
+    color: #555;
+    margin: 8px 0;
+    line-height: 1.6;
+  }
+  
+  /* Action Buttons */
+  .action-buttons {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+  }
+  
+  button {
+    font-size: 14px;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-grow: 1;
+  }
+  
+  .delete-btn {
+    background-color: #ff4d4d;
+    color: white;
+  }
+  
+  .delete-btn:hover {
+    background-color: #e63939;
+  }
+  
+  .edit-btn {
+    background-color: #4caf50;
+    color: white;
+  }
+  
+  .edit-btn:hover {
+    background-color: #399739;
+  }
+  
+  .home-btn {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .home-btn:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 480px) {
+    .employee-details-container {
+      width: 90%;
+    }
+  }
+
+.employee-edit-form{
+  background-color: none;
+}
+
+.edit-div{
+  justify-content: center;
+  justify-items: center;
+  height: 50%;
+}
+
+.cancel-btn{
+  margin-left: 20px;
+}
+
+.employee-info{
+  text-align:justify;
+}
+
