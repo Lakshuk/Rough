@@ -822,3 +822,65 @@ public class ForgotPasswordService {
 };
 
 export default ForgotPassword;
+
+
+
+
+
+
+
+
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Service;
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+public class ForgotPasswordService {
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private JavaMailSender mailSender;
+
+    public String generateResetToken(String email) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            String token = UUID.randomUUID().toString();
+            user.setResetToken(token);
+            userRepository.save(user);
+            
+            sendResetEmail(user.getEmail(), token);
+            return "Reset link sent to email!";
+        }
+        return "Email not found!";
+    }
+
+    private void sendResetEmail(String email, String token) {
+        String resetLink = "http://localhost:3000/reset-password?token=" + token;
+        
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject("Password Reset Request");
+        message.setText("Click the link below to reset your password:\n" + resetLink);
+        
+        mailSender.send(message);
+    }
+
+    public String resetPassword(String token, String newPassword) {
+        Optional<User> userOptional = userRepository.findByResetToken(token);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setPassword(newPassword); // Encrypt in real app
+            user.setResetToken(null);
+            userRepository.save(user);
+            return "Password reset successfully!";
+        }
+        return "Invalid or expired token!";
+    }
+}
